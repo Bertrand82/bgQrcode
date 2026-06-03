@@ -1,1 +1,79 @@
-<h1> BG </h1>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Générateur de QR code</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #qrcode {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Générateur de QR code</h1>
+  <p>Entre une URL puis clique sur le bouton.</p>
+
+  <input
+    type="text"
+    id="urlInput"
+    placeholder="https://exemple.com"
+  />
+  <br />
+  <button onclick="generateQRCode()">Générer</button>
+
+  <div id="error" class="error"></div>
+  <div id="qrcode"></div>
+
+  <script>
+    function generateQRCode() {
+      const url = document.getElementById("urlInput").value.trim();
+      const qrContainer = document.getElementById("qrcode");
+      const error = document.getElementById("error");
+
+      qrContainer.innerHTML = "";
+      error.textContent = "";
+
+      if (!url) {
+        error.textContent = "Veuillez entrer une URL.";
+        return;
+      }
+
+      new QRCode(qrContainer, {
+        text: url,
+        width: 220,
+        height: 220
+      });
+    }
+  </script>
+</body>
+</html>
