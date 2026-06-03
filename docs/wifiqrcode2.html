@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR code Wi‑Fi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    h1 { text-align: center; }
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      cursor: pointer;
+    }
+    #qrcode {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .hint {
+      color: #555;
+      font-size: 14px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 700px) {
+      .row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Générateur de QR code Wi‑Fi</h1>
+
+  <div class="grid">
+    <div>
+      <label for="ssid">Nom du Wi‑Fi (SSID)</label>
+      <input id="ssid" type="text" placeholder="Ex: MonWifiMaison" />
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="security">Sécurité</label>
+        <select id="security">
+          <option value="WPA">WPA/WPA2/WPA3</option>
+          <option value="WEP">WEP</option>
+          <option value="nopass">Aucune</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="hidden">Réseau caché</label>
+        <select id="hidden">
+          <option value="false">Non</option>
+          <option value="true">Oui</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="password">Mot de passe</label>
+      <input id="password" type="text" placeholder="Mot de passe Wi‑Fi" />
+      <div class="hint">Pour un réseau ouvert, laisse ce champ vide.</div>
+    </div>
+
+    <button id="generateBtn">Générer le QR code</button>
+  </div>
+
+  <div id="qrcode"></div>
+
+  <script>
+    function escapeWifiValue(value) {
+      return value
+        .replace(/\\/g, "\\\\")
+        .replace(/;/g, "\\;")
+        .replace(/,/g, "\\,")
+        .replace(/:/g, "\\:")
+        .replace(/"/g, '\\"');
+    }
+
+    function buildWifiString(ssid, security, password, hidden) {
+      const safeSsid = escapeWifiValue(ssid);
+      const safePassword = escapeWifiValue(password);
+
+      if (security === "nopass") {
+        return `WIFI:T:nopass;S:${safeSsid};H:${hidden};;`;
+      }
+
+      return `WIFI:T:${security};S:${safeSsid};P:${safePassword};H:${hidden};;`;
+    }
+
+    function generateQRCode() {
+      const ssid = document.getElementById("ssid").value.trim();
+      const security = document.getElementById("security").value;
+      const password = document.getElementById("password").value;
+      const hidden = document.getElementById("hidden").value;
+      const container = document.getElementById("qrcode");
+
+      container.innerHTML = "";
+
+      if (!ssid) {
+        alert("Veuillez renseigner le nom du réseau Wi‑Fi.");
+        return;
+      }
+
+      if (security !== "nopass" && !password) {
+        alert("Veuillez renseigner le mot de passe.");
+        return;
+      }
+
+      const wifiString = buildWifiString(ssid, security, password, hidden);
+
+      new QRCode(container, {
+        text: wifiString,
+        width: 260,
+        height: 260
+      });
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateQRCode);
+  </script>
+</body>
+</html>
