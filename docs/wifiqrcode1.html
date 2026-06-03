@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Générateur QR Code Wi‑Fi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --border: #d1d5db;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    p {
+      color: var(--muted);
+    }
+
+    .providers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (min-width: 700px) {
+      .providers {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .provider-btn,
+    button {
+      border: 1px solid var(--border);
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.2s ease;
+    }
+
+    .provider-btn:hover,
+    button:hover {
+      border-color: var(--primary);
+    }
+
+    .provider-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .row-2 {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 700px) {
+      .row-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (min-width: 700px) {
+      .actions {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      padding: 18px 0;
+      min-height: 280px;
+      align-items: center;
+    }
+
+    #wifiString {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: monospace;
+      word-break: break-all;
+      color: #111827;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .error {
+      color: #b91c1c;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    canvas, img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+	 <a href="wifiqrcode1.html">wifi1</a>
+ <a href="wifiqrcode2.html">wifi2</a>
+  <a href="linkqrcode.html">link</a>
+      <h1>Générateur de QR Code Wi‑Fi</h1>
+      <p>
+        Choisis un fournisseur, complète les infos du réseau, puis génère un QR code
+        que l’on pourra scanner avec un téléphone.
+      </p>
+
+      <div class="providers">
+        <button class="provider-btn active" data-provider="freebox">Freebox</button*
+
