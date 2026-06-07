@@ -122,6 +122,17 @@
 
     function getRenderedQrSource(container, timeoutMs = 1500) {
       return new Promise((resolve) => {
+        let isResolved = false;
+        let timeoutId;
+
+        function finish(value) {
+          if (isResolved) return;
+          isResolved = true;
+          clearTimeout(timeoutId);
+          observer.disconnect();
+          resolve(value);
+        }
+
         function findSource() {
           const qrCanvas = container.querySelector("canvas");
           const qrImage = container.querySelector("img");
@@ -144,19 +155,17 @@
         }
 
         const observer = new MutationObserver(() => {
+          if (isResolved) return;
           const source = findSource();
           if (source) {
-            clearTimeout(timeoutId);
-            observer.disconnect();
-            resolve(source);
+            finish(source);
           }
         });
 
         observer.observe(container, { childList: true, subtree: true });
 
-        const timeoutId = setTimeout(() => {
-          observer.disconnect();
-          resolve(findSource());
+        timeoutId = setTimeout(() => {
+          finish(findSource());
         }, timeoutMs);
       });
     }
@@ -214,13 +223,16 @@
         finalCanvas.height = qrHeight + SSID_LABEL_HEIGHT;
 
         const ctx = finalCanvas.getContext("2d");
-        if (!ctx) return;
+        if (!ctx) {
+          console.error("Impossible de générer l'image QR.");
+          return;
+        }
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
         ctx.drawImage(source, 0, 0, qrWidth, qrHeight);
 
-        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - SSID_TEXT_PADDING);
+        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - SSID_TEXT_PADDING * 2);
         ctx.fillStyle = "#111";
         ctx.font = `bold ${ssidFontSize}px Arial, sans-serif`;
         ctx.textAlign = "center";
