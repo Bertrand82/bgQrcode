@@ -118,6 +118,11 @@
     const SSID_TEXT_PADDING = 20;
     const SSID_LABEL_TOP_PADDING = 14;
     const SSID_LABEL_HEIGHT = 40;
+    const MIN_TITLE_FONT_SIZE = 14;
+    const MAX_TITLE_FONT_SIZE = 24;
+    const TITLE_TEXT_PADDING = 20;
+    const TITLE_LABEL_TOP_PADDING = 12;
+    const TITLE_LABEL_HEIGHT = 44;
 
     function escapeWifiValue(value) {
       return value
@@ -189,12 +194,12 @@
       });
     }
 
-    function computeSsidFontSize(ctx, ssid, maxWidth) {
-      let fontSize = MAX_SSID_FONT_SIZE;
+    function computeFittedFontSize(ctx, text, maxWidth, maxFontSize, minFontSize) {
+      let fontSize = maxFontSize;
 
-      while (fontSize > MIN_SSID_FONT_SIZE) {
+      while (fontSize > minFontSize) {
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        if (ctx.measureText(ssid).width <= maxWidth) {
+        if (ctx.measureText(text).width <= maxWidth) {
           break;
         }
 
@@ -252,8 +257,10 @@
         const qrHeight = source.height || QR_SIZE;
         const finalCanvas = document.createElement("canvas");
 
+        const titleLabelHeight = title ? TITLE_LABEL_HEIGHT : 0;
+
         finalCanvas.width = qrWidth;
-        finalCanvas.height = qrHeight + SSID_LABEL_HEIGHT;
+        finalCanvas.height = titleLabelHeight + qrHeight + SSID_LABEL_HEIGHT;
 
         const ctx = finalCanvas.getContext("2d");
         if (!ctx) {
@@ -263,14 +270,35 @@
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-        ctx.drawImage(source, 0, 0, qrWidth, qrHeight);
+        if (title) {
+          const titleFontSize = computeFittedFontSize(
+            ctx,
+            title,
+            qrWidth - TITLE_TEXT_PADDING * 2,
+            MAX_TITLE_FONT_SIZE,
+            MIN_TITLE_FONT_SIZE
+          );
+          ctx.fillStyle = "#111";
+          ctx.font = `bold ${titleFontSize}px Arial, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(title, qrWidth / 2, TITLE_LABEL_TOP_PADDING);
+        }
 
-        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - SSID_TEXT_PADDING * 2);
+        ctx.drawImage(source, 0, titleLabelHeight, qrWidth, qrHeight);
+
+        const ssidFontSize = computeFittedFontSize(
+          ctx,
+          ssid,
+          qrWidth - SSID_TEXT_PADDING * 2,
+          MAX_SSID_FONT_SIZE,
+          MIN_SSID_FONT_SIZE
+        );
         ctx.fillStyle = "#111";
         ctx.font = `bold ${ssidFontSize}px Arial, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
-        ctx.fillText(ssid, qrWidth / 2, qrHeight + SSID_LABEL_TOP_PADDING);
+        ctx.fillText(ssid, qrWidth / 2, titleLabelHeight + qrHeight + SSID_LABEL_TOP_PADDING);
 
         container.innerHTML = "";
         container.appendChild(finalCanvas);
