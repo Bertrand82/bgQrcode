@@ -4,48 +4,89 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Générateur de QR code</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(17, 24, 39, 0.95);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --link-bg: #1e293b;
+      --link-hover: #334155;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 20px;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, var(--bg), #1e293b);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-sizing: border-box;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
       text-align: center;
     }
 
-    input {
-      width: 80%;
-      padding: 12px;
-      font-size: 16px;
-      margin-bottom: 12px;
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.9rem;
     }
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      cursor: pointer;
+    p {
+      margin: 0;
+      color: var(--muted);
     }
 
-    #qrcode {
-      margin-top: 24px;
-      display: flex;
-      justify-content: center;
+    .link-grid {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
 
-    .error {
-      color: red;
-      margin-top: 10px;
+    .menu-link {
+      display: inline-block;
+      width: 100%;
+      box-sizing: border-box;
+      text-decoration: none;
+      background: var(--link-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-weight: bold;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .menu-link:hover {
+      background: var(--link-hover);
+      border-color: var(--accent);
     }
   </style>
 </head>
 <body>
- <h1>Générateur de QR code</h1>
- 
- <a href="wifiqrcode.html">wifi</a>
- <a href="linkqrcode.html">link</a>
- 
+  <div class="card">
+    <h1>Générateur de QR code</h1>
+    <p>Choisissez le type de QR code à générer.</p>
 
-
+    <div class="link-grid">
+      <a class="menu-link" href="wifiqrcode.html">QR code Wi‑Fi</a>
+      <a class="menu-link" href="linkqrcode.html">QR code URL</a>
+    </div>
+  </div>
 </body>
 </html>

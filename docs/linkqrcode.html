@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QR Code Generator</title>
+  <title>QR code URL</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
     :root {
-      color-scheme: light dark;
       --bg: #0f172a;
-      --panel: #111827;
+      --panel: rgba(17, 24, 39, 0.95);
       --text: #e5e7eb;
       --muted: #94a3b8;
       --accent: #22c55e;
       --accent-hover: #16a34a;
       --input-bg: #1f2937;
       --border: #334155;
+      --link-bg: #1e293b;
+      --link-hover: #334155;
     }
 
     body {
@@ -42,13 +43,36 @@
     }
 
     h1 {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       font-size: 1.8rem;
     }
 
     p {
       margin: 0;
       color: var(--muted);
+    }
+
+    .top-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .top-links a {
+      text-decoration: none;
+      background: var(--link-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .top-links a:hover {
+      background: var(--link-hover);
+      border-color: var(--accent);
     }
 
     .form-row {
@@ -154,8 +178,12 @@
 </head>
 <body>
   <div class="card">
-    <h1>QR Code Generator</h1>
-    <p>Saisissez une URL puis cliquez sur <strong>Generate</strong>.</p>
+    <nav class="top-links" aria-label="Navigation">
+      <a href="index.html">Accueil</a>
+      <a href="wifiqrcode.html">QR code Wi‑Fi</a>
+    </nav>
+    <h1>Générateur de QR code URL</h1>
+    <p>Saisissez une URL puis cliquez sur <strong>Générer</strong>.</p>
 
     <div class="form-row">
       <input
@@ -164,7 +192,7 @@
         placeholder="https://example.com"
         aria-label="URL à encoder"
       />
-      <button id="generateBtn">Generate</button>
+      <button id="generateBtn">Générer</button>
     </div>
 
     <div class="options">
