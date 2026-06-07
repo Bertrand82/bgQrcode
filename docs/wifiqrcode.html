@@ -139,6 +139,39 @@
         width: 260,
         height: 260
       });
+
+      requestAnimationFrame(() => {
+        const qrCanvas = container.querySelector("canvas");
+        const qrImage = container.querySelector("img");
+        const source = qrCanvas || qrImage;
+
+        if (!source) return;
+
+        const qrWidth = source.width || 260;
+        const qrHeight = source.height || 260;
+        const labelPadding = 14;
+        const labelHeight = 40;
+        const finalCanvas = document.createElement("canvas");
+
+        finalCanvas.width = qrWidth;
+        finalCanvas.height = qrHeight + labelHeight;
+
+        const ctx = finalCanvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+        ctx.drawImage(source, 0, 0, qrWidth, qrHeight);
+
+        ctx.fillStyle = "#111";
+        ctx.font = "bold 20px Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText(ssid, qrWidth / 2, qrHeight + labelPadding);
+
+        container.innerHTML = "";
+        container.appendChild(finalCanvas);
+      });
     }
 
     document.getElementById("generateBtn").addEventListener("click", generateQRCode);
