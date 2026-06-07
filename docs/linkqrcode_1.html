@@ -40,12 +40,42 @@
   </style>
 </head>
 <body>
- <h1>Générateur de QR code</h1>
- <a href="wifiqrcode1.html">wifi1</a>
  <a href="wifiqrcode2.html">wifi2</a>
   <a href="linkqrcode.html">link</a>
- 
+  <h1>Générateur de QR code</h1>
+  <p>Entre une URL puis clique sur le bouton.</p>
 
+  <input
+    type="text"
+    id="urlInput"
+    placeholder="https://exemple.com"
+  />
+  <br />
+  <button onclick="generateQRCode()">Générer</button>
 
+  <div id="error" class="error"></div>
+  <div id="qrcode"></div>
+
+  <script>
+    function generateQRCode() {
+      const url = document.getElementById("urlInput").value.trim();
+      const qrContainer = document.getElementById("qrcode");
+      const error = document.getElementById("error");
+
+      qrContainer.innerHTML = "";
+      error.textContent = "";
+
+      if (!url) {
+        error.textContent = "Veuillez entrer une URL.";
+        return;
+      }
+
+      new QRCode(qrContainer, {
+        text: url,
+        width: 220,
+        height: 220
+      });
+    }
+  </script>
 </body>
 </html>

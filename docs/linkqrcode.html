@@ -3,79 +3,330 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Générateur de QR code</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <title>QR Code Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 20px;
-      text-align: center;
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --input-bg: #1f2937;
+      --border: #334155;
     }
 
-    input {
-      width: 80%;
-      padding: 12px;
-      font-size: 16px;
-      margin-bottom: 12px;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-sizing: border-box;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      flex: 1 1 320px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
     }
 
     button {
-      padding: 12px 20px;
-      font-size: 16px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #052e16;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    .options {
+      margin-top: 16px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
       cursor: pointer;
     }
 
-    #qrcode {
+    .output {
       margin-top: 24px;
-      display: flex;
-      justify-content: center;
+      text-align: center;
+    }
+
+    canvas {
+      margin-top: 12px;
+      background: white;
+      border-radius: 12px;
+      max-width: 100%;
+      height: auto;
+      display: none;
+    }
+
+    .download {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .download:hover {
+      background: #1d4ed8;
     }
 
     .error {
-      color: red;
+      margin-top: 12px;
+      color: #fca5a5;
+      min-height: 1.2em;
+    }
+
+    .filename {
       margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      word-break: break-all;
     }
   </style>
 </head>
 <body>
- <a href="wifiqrcode2.html">wifi2</a>
-  <a href="linkqrcode.html">link</a>
-  <h1>Générateur de QR code</h1>
-  <p>Entre une URL puis clique sur le bouton.</p>
+  <div class="card">
+    <h1>QR Code Generator</h1>
+    <p>Saisissez une URL puis cliquez sur <strong>Generate</strong>.</p>
 
-  <input
-    type="text"
-    id="urlInput"
-    placeholder="https://exemple.com"
-  />
-  <br />
-  <button onclick="generateQRCode()">Générer</button>
+    <div class="form-row">
+      <input
+        type="text"
+        id="urlInput"
+        placeholder="https://example.com"
+        aria-label="URL à encoder"
+      />
+      <button id="generateBtn">Generate</button>
+    </div>
 
-  <div id="error" class="error"></div>
-  <div id="qrcode"></div>
+    <div class="options">
+      <label class="checkbox-row" for="includeDomainCheckbox">
+        <input type="checkbox" id="includeDomainCheckbox" checked />
+        <span>Inclure le nom de domaine sous le QR code dans l'image</span>
+      </label>
+    </div>
+
+    <div class="error" id="errorMsg"></div>
+
+    <div class="output">
+      <canvas id="qrcodeCanvas"></canvas>
+      <div class="filename" id="fileNameDisplay"></div>
+      <a id="downloadLink" class="download">Télécharger le QR code</a>
+    </div>
+  </div>
 
   <script>
-    function generateQRCode() {
-      const url = document.getElementById("urlInput").value.trim();
-      const qrContainer = document.getElementById("qrcode");
-      const error = document.getElementById("error");
+    const urlInput = document.getElementById('urlInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const canvas = document.getElementById('qrcodeCanvas');
+    const errorMsg = document.getElementById('errorMsg');
+    const downloadLink = document.getElementById('downloadLink');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const includeDomainCheckbox = document.getElementById('includeDomainCheckbox');
 
-      qrContainer.innerHTML = "";
-      error.textContent = "";
+    function isValidUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    }
 
-      if (!url) {
-        error.textContent = "Veuillez entrer une URL.";
+    function buildFileNameFromUrl(value) {
+      const url = new URL(value);
+      const raw = (url.hostname + url.pathname + url.search + url.hash)
+        .replace(/[^a-zA-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .toLowerCase();
+
+      const limited = (raw || 'qrcode').slice(0, 30).replace(/^_+|_+$/g, '');
+      return (limited || 'qrcode') + '.png';
+    }
+
+    function getDomainFromUrl(value) {
+      const url = new URL(value);
+      return url.hostname;
+    }
+
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+
+      for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        const metrics = ctx.measureText(testLine);
+
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return lines;
+    }
+
+    async function generateQrCode() {
+      const value = urlInput.value.trim();
+      const includeDomain = includeDomainCheckbox.checked;
+
+      errorMsg.textContent = '';
+      downloadLink.style.display = 'none';
+      fileNameDisplay.textContent = '';
+      canvas.style.display = 'none';
+
+      if (!value) {
+        errorMsg.textContent = 'Veuillez saisir une URL.';
         return;
       }
 
-      new QRCode(qrContainer, {
-        text: url,
-        width: 220,
-        height: 220
-      });
+      if (!isValidUrl(value)) {
+        errorMsg.textContent = 'Veuillez saisir une URL valide commençant par http:// ou https://';
+        return;
+      }
+
+      const fileName = buildFileNameFromUrl(value);
+      const domain = getDomainFromUrl(value);
+
+      try {
+        const qrSize = 280;
+        const padding = 20;
+        const textAreaHeight = includeDomain ? 50 : 0;
+        const finalWidth = qrSize + padding * 2;
+        const finalHeight = qrSize + padding * 2 + textAreaHeight;
+
+        const tempCanvas = document.createElement('canvas');
+        await QRCode.toCanvas(tempCanvas, value, {
+          width: qrSize,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+
+        canvas.width = finalWidth;
+        canvas.height = finalHeight;
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, finalWidth, finalHeight);
+
+        ctx.drawImage(tempCanvas, padding, padding, qrSize, qrSize);
+
+        if (includeDomain) {
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 20px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          const lines = wrapText(ctx, domain, finalWidth - 20);
+          const lineHeight = 22;
+          const blockHeight = lines.length * lineHeight;
+          let y = qrSize + padding + (textAreaHeight / 2) - (blockHeight / 2) + (lineHeight / 2);
+
+          for (const line of lines) {
+            ctx.fillText(line, finalWidth / 2, y);
+            y += lineHeight;
+          }
+        }
+
+        const dataUrl = canvas.toDataURL('image/png');
+        downloadLink.href = dataUrl;
+        downloadLink.download = fileName;
+        downloadLink.style.display = 'inline-block';
+
+        canvas.style.display = 'inline-block';
+        fileNameDisplay.textContent = 'Nom du fichier : ' + fileName;
+      } catch (err) {
+        errorMsg.textContent = 'Erreur lors de la génération du QR code.';
+        console.error(err);
+      }
     }
+
+    generateBtn.addEventListener('click', generateQrCode);
+
+    urlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        generateQrCode();
+      }
+    });
   </script>
 </body>
 </html>
