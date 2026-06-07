@@ -93,6 +93,8 @@
   <div id="qrcode"></div>
 
   <script>
+    const QR_SIZE = 260;
+
     function escapeWifiValue(value) {
       return value
         .replace(/\\/g, "\\\\")
@@ -113,35 +115,60 @@
       return `WIFI:T:${security};S:${safeSsid};P:${safePassword};H:${hidden};;`;
     }
 
-    function getRenderedQrSource(container, maxAttempts = 30) {
+    function getRenderedQrSource(container, timeoutMs = 1500) {
       return new Promise((resolve) => {
-        let attempts = 0;
-
-        function checkSource() {
+        function findSource() {
           const qrCanvas = container.querySelector("canvas");
           const qrImage = container.querySelector("img");
 
           if (qrCanvas) {
-            resolve(qrCanvas);
-            return;
+            return qrCanvas;
           }
 
           if (qrImage && qrImage.complete && qrImage.naturalWidth > 0) {
-            resolve(qrImage);
-            return;
+            return qrImage;
           }
 
-          attempts += 1;
-          if (attempts >= maxAttempts) {
-            resolve(null);
-            return;
-          }
-
-          setTimeout(checkSource, 20);
+          return null;
         }
 
-        checkSource();
+        const immediateSource = findSource();
+        if (immediateSource) {
+          resolve(immediateSource);
+          return;
+        }
+
+        const observer = new MutationObserver(() => {
+          const source = findSource();
+          if (source) {
+            clearTimeout(timeoutId);
+            observer.disconnect();
+            resolve(source);
+          }
+        });
+
+        observer.observe(container, { childList: true, subtree: true });
+
+        const timeoutId = setTimeout(() => {
+          observer.disconnect();
+          resolve(findSource());
+        }, timeoutMs);
       });
+    }
+
+    function computeSsidFontSize(ctx, ssid, maxWidth) {
+      let fontSize = 20;
+
+      while (fontSize > 12) {
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        if (ctx.measureText(ssid).width <= maxWidth) {
+          break;
+        }
+
+        fontSize -= 1;
+      }
+
+      return fontSize;
     }
 
     function generateQRCode() {
@@ -167,15 +194,15 @@
 
       new QRCode(container, {
         text: wifiString,
-        width: 260,
-        height: 260
+        width: QR_SIZE,
+        height: QR_SIZE
       });
 
       getRenderedQrSource(container).then((source) => {
         if (!source) return;
 
-        const qrWidth = source.width || 260;
-        const qrHeight = source.height || 260;
+        const qrWidth = source.width || QR_SIZE;
+        const qrHeight = source.height || QR_SIZE;
         const labelPadding = 14;
         const labelHeight = 40;
         const finalCanvas = document.createElement("canvas");
@@ -190,8 +217,9 @@
         ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
         ctx.drawImage(source, 0, 0, qrWidth, qrHeight);
 
+        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - 20);
         ctx.fillStyle = "#111";
-        ctx.font = "bold 20px Arial, sans-serif";
+        ctx.font = `bold ${ssidFontSize}px Arial, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         ctx.fillText(ssid, qrWidth / 2, qrHeight + labelPadding);
