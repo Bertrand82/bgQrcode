@@ -94,6 +94,11 @@
 
   <script>
     const QR_SIZE = 260;
+    const MIN_SSID_FONT_SIZE = 12;
+    const MAX_SSID_FONT_SIZE = 20;
+    const SSID_TEXT_PADDING = 20;
+    const SSID_LABEL_TOP_PADDING = 14;
+    const SSID_LABEL_HEIGHT = 40;
 
     function escapeWifiValue(value) {
       return value
@@ -157,9 +162,9 @@
     }
 
     function computeSsidFontSize(ctx, ssid, maxWidth) {
-      let fontSize = 20;
+      let fontSize = MAX_SSID_FONT_SIZE;
 
-      while (fontSize > 12) {
+      while (fontSize > MIN_SSID_FONT_SIZE) {
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
         if (ctx.measureText(ssid).width <= maxWidth) {
           break;
@@ -203,12 +208,10 @@
 
         const qrWidth = source.width || QR_SIZE;
         const qrHeight = source.height || QR_SIZE;
-        const labelPadding = 14;
-        const labelHeight = 40;
         const finalCanvas = document.createElement("canvas");
 
         finalCanvas.width = qrWidth;
-        finalCanvas.height = qrHeight + labelHeight;
+        finalCanvas.height = qrHeight + SSID_LABEL_HEIGHT;
 
         const ctx = finalCanvas.getContext("2d");
         if (!ctx) return;
@@ -217,12 +220,12 @@
         ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
         ctx.drawImage(source, 0, 0, qrWidth, qrHeight);
 
-        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - 20);
+        const ssidFontSize = computeSsidFontSize(ctx, ssid, qrWidth - SSID_TEXT_PADDING);
         ctx.fillStyle = "#111";
         ctx.font = `bold ${ssidFontSize}px Arial, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
-        ctx.fillText(ssid, qrWidth / 2, qrHeight + labelPadding);
+        ctx.fillText(ssid, qrWidth / 2, qrHeight + SSID_LABEL_TOP_PADDING);
 
         container.innerHTML = "";
         container.appendChild(finalCanvas);
