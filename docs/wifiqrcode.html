@@ -113,6 +113,37 @@
       return `WIFI:T:${security};S:${safeSsid};P:${safePassword};H:${hidden};;`;
     }
 
+    function getRenderedQrSource(container, maxAttempts = 30) {
+      return new Promise((resolve) => {
+        let attempts = 0;
+
+        function checkSource() {
+          const qrCanvas = container.querySelector("canvas");
+          const qrImage = container.querySelector("img");
+
+          if (qrCanvas) {
+            resolve(qrCanvas);
+            return;
+          }
+
+          if (qrImage && qrImage.complete && qrImage.naturalWidth > 0) {
+            resolve(qrImage);
+            return;
+          }
+
+          attempts += 1;
+          if (attempts >= maxAttempts) {
+            resolve(null);
+            return;
+          }
+
+          setTimeout(checkSource, 20);
+        }
+
+        checkSource();
+      });
+    }
+
     function generateQRCode() {
       const ssid = document.getElementById("ssid").value.trim();
       const security = document.getElementById("security").value;
@@ -140,11 +171,7 @@
         height: 260
       });
 
-      requestAnimationFrame(() => {
-        const qrCanvas = container.querySelector("canvas");
-        const qrImage = container.querySelector("img");
-        const source = qrCanvas || qrImage;
-
+      getRenderedQrSource(container).then((source) => {
         if (!source) return;
 
         const qrWidth = source.width || 260;
